@@ -1,0 +1,7 @@
+Layout dos filtros na página de Desvios - Screenshot:
+- Título "Desvios" + "30 desvios encontrados" no topo - OK
+- Campo de busca em linha separada, largura total - OK
+- 6 filtros em uma única linha (grid 6 colunas): Todas as obras | Todos os status | Severidade | Disciplina | Origem | Classificação - OK
+- Todos os filtros com tamanho igual e bem distribuídos - OK
+- Layout limpo e organizado, sem overflow ou corte de texto
+- Resultado: muito melhor que antes

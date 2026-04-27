@@ -1,0 +1,126 @@
+npm warn deprecated hast@1.0.0: Renamed to rehype
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 776 packages, and audited 777 packages in 8s
+
+184 packages are looking for funding
+  run `npm fund` for details
+
+12 vulnerabilities (11 moderate, 1 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> frecfunchal_dashboard_desvios@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.3.2 building client environment for production...
+(!) %VITE_ANALYTICS_ENDPOINT% is not defined in env variables found in /index.html. Is the variable mistyped?
+(!) %VITE_ANALYTICS_WEBSITE_ID% is not defined in env variables found in /index.html. Is the variable mistyped?
+(!) %VITE_ANALYTICS_ENDPOINT% is not defined in env variables found in /index.html. Is the variable mistyped?
+(!) %VITE_ANALYTICS_WEBSITE_ID% is not defined in env variables found in /index.html. Is the variable mistyped?
+transforming...
+✓ 4756 modules transformed.
+Circular chunk: vendor -> react-vendor -> vendor. Please adjust the manual chunk logic for these chunks.
+Circular chunk: vendor -> ui-vendor -> vendor. Please adjust the manual chunk logic for these chunks.
+rendering chunks...
+computing gzip size...
+../dist/public/assets/KaTeX_Size3-Regular-CTq5MqoE.woff             4.42 kB
+../dist/public/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2            4.93 kB
+../dist/public/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2            5.21 kB
+../dist/public/assets/KaTeX_Size1-Regular-mCD8mA8B.woff2            5.47 kB
+../dist/public/assets/KaTeX_Size4-Regular-BF-4gkZK.woff             5.98 kB
+../dist/public/assets/KaTeX_Size2-Regular-oD1tc_U0.woff             6.19 kB
+../dist/public/assets/KaTeX_Size1-Regular-C195tn64.woff             6.50 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2      6.91 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2         6.91 kB
+../dist/public/assets/KaTeX_Size3-Regular-DgpXs0kz.ttf              7.59 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-CTRA-rTL.woff       7.66 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-BEiXGLvX.woff          7.72 kB
+../dist/public/assets/KaTeX_Script-Regular-D3wIWfF6.woff2           9.64 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-DDBCnlJ7.woff2       10.34 kB
+../dist/public/assets/KaTeX_Size4-Regular-DWFBv043.ttf             10.36 kB
+../dist/public/assets/KaTeX_Script-Regular-D5yQViql.woff           10.59 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-CTYiF6lA.woff2         11.32 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-CL6g_b3V.woff2            11.35 kB
+../dist/public/assets/KaTeX_Size2-Regular-B7gKUWhC.ttf             11.51 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-C3H0VqGB.woff2        12.03 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-D1sUS0GD.woff2          12.22 kB
+../dist/public/assets/KaTeX_Size1-Regular-Dbsnue_I.ttf             12.23 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-CS6fqUqJ.woff        12.32 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-wX97UBjC.ttf       12.34 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-ATXxdsX0.ttf          12.37 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-Dxdc4cR9.woff          13.21 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-BsDP51OF.woff             13.30 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2      13.57 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-DN2j7dab.woff         14.11 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-DbIhKOiC.woff           14.41 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-C0xS9mPB.woff       16.03 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-CZnvNsCZ.woff2         16.40 kB
+../dist/public/assets/KaTeX_Math-Italic-t53AETM-.woff2             16.44 kB
+../dist/public/assets/KaTeX_Script-Regular-C5JkGWo-.ttf            16.65 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-DxDJ3AOS.woff2         16.78 kB
+../dist/public/assets/KaTeX_Main-Italic-NWA7e6Wa.woff2             16.99 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-iY-2wyZ7.woff          18.67 kB
+../dist/public/assets/KaTeX_Math-Italic-DA0__PXp.woff              18.75 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-SpSLRI95.woff          19.41 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-BNo7hRIc.ttf         19.44 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-CB_wures.ttf           19.57 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-BdnERNNW.ttf              19.58 kB
+../dist/public/assets/KaTeX_Main-Italic-BMLOBm91.woff              19.68 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-YYjJ1zSn.ttf          22.36 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-CFMepnvq.ttf            24.50 kB
+../dist/public/assets/KaTeX_Main-Bold-Cx986IdX.woff2               25.32 kB
+../dist/public/assets/KaTeX_Main-Regular-B22Nviop.woff2            26.27 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-D3Ib7_Hf.ttf        27.56 kB
+../dist/public/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2             28.08 kB
+../dist/public/assets/KaTeX_Main-Bold-Jm3AIy58.woff                29.91 kB
+../dist/public/assets/KaTeX_Main-Regular-Dr94JaBh.woff             30.77 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-B3XSjfu4.ttf           31.20 kB
+../dist/public/assets/KaTeX_Math-Italic-flOr_0UB.ttf               31.31 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-DzxPMmG6.ttf           32.97 kB
+../dist/public/assets/KaTeX_AMS-Regular-DMm9YOAa.woff              33.52 kB
+../dist/public/assets/KaTeX_Main-Italic-3WenGoN9.ttf               33.58 kB
+../dist/public/assets/KaTeX_Main-Bold-waoOVXN0.ttf                 51.34 kB
+../dist/public/assets/KaTeX_Main-Regular-ypZvNtVU.ttf              53.58 kB
+../dist/public/assets/KaTeX_AMS-Regular-DRggAlZN.ttf               63.63 kB
+../dist/public/index.html                                         369.14 kB │ gzip:   105.54 kB
+../dist/public/assets/vendor-CfVKi3_s.css                          29.27 kB │ gzip:     8.06 kB
+../dist/public/assets/index-d9pOYzPk.css                          137.85 kB │ gzip:    21.62 kB
+../dist/public/assets/page-NotFound-BphHOriw.js                     3.78 kB │ gzip:     1.51 kB
+../dist/public/assets/page-Obras-D4NbW9Yr.js                        4.52 kB │ gzip:     1.69 kB
+../dist/public/assets/page-Verificacoes-DGlEM80a.js                 5.01 kB │ gzip:     1.69 kB
+../dist/public/assets/page-Assistente-C-nTpsSi.js                   5.42 kB │ gzip:     2.19 kB
+../dist/public/assets/page-VerificacaoDetalhe-BPnzUoiE.js           6.79 kB │ gzip:     2.08 kB
+../dist/public/assets/highlight-vendor-BS4gNKNp.js                  9.42 kB │ gzip:     2.77 kB
+../dist/public/assets/page-NovaVerificacao-D1n6Dn1v.js             10.34 kB │ gzip:     3.40 kB
+../dist/public/assets/page-Usuarios-GvD-SMHU.js                    11.15 kB │ gzip:     3.42 kB
+../dist/public/assets/page-Administracao-GG6GprQj.js               11.37 kB │ gzip:     3.16 kB
+../dist/public/assets/page-DesviosList-DNB1tUxM.js                 13.06 kB │ gzip:     4.17 kB
+../dist/public/assets/page-Fornecedores-Cg_LgevH.js                13.15 kB │ gzip:     3.38 kB
+../dist/public/assets/page-Relatorio-BEvNaNr1.js                   13.43 kB │ gzip:     3.91 kB
+../dist/public/assets/page-DesvioNovo-DCY23qCL.js                  13.70 kB │ gzip:     4.57 kB
+../dist/public/assets/page-Home-BJl_7blh.js                        22.33 kB │ gzip:     6.04 kB
+../dist/public/assets/page-DesvioDetalhe-BWNn3hL-.js               26.17 kB │ gzip:     6.75 kB
+../dist/public/assets/utils-vendor-Qm4_4bAc.js                     27.30 kB │ gzip:     8.69 kB
+../dist/public/assets/index-CGNSDGp3.js                            28.35 kB │ gzip:     8.99 kB
+../dist/public/assets/ui-extra-vendor-NYSMJmbB.js                  34.40 kB │ gzip:     9.95 kB
+../dist/public/assets/http-vendor-_qVYcL9H.js                      47.31 kB │ gzip:    13.05 kB
+../dist/public/assets/state-vendor-BbN0Rx_o.js                     50.62 kB │ gzip:    14.63 kB
+../dist/public/assets/ui-vendor-BR9jvrZ5.js                       109.70 kB │ gzip:    33.21 kB
+../dist/public/assets/react-vendor-B-_2Abrq.js                    227.66 kB │ gzip:    70.86 kB
+../dist/public/assets/chart-vendor-C9ylO-iC.js                    264.16 kB │ gzip:    60.63 kB
+../dist/public/assets/vendor-B00uQmeU.js                        7,798.28 kB │ gzip: 1,322.37 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 10.47s
+
+  dist/index.js  96.0kb
+
+⚡ Done in 8ms

@@ -5,10 +5,10 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
-import Home from "./pages/Home";
 import { Suspense, lazy } from "react";
 
-// Lazy load pages for better code splitting
+// Lazy load ALL pages for better code splitting
+const Home = lazy(() => import("./pages/Home"));
 const DesviosList = lazy(() => import("./pages/DesviosList"));
 const DesvioNovo = lazy(() => import("./pages/DesvioNovo"));
 const DesvioDetalhe = lazy(() => import("./pages/DesvioDetalhe"));

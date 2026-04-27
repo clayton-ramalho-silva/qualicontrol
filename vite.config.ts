@@ -167,15 +167,85 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     rollupOptions: {
+      // Externalize heavy libraries that are rarely used
+      external: (id) => {
+        // Externalize diagram libraries - they will be loaded from CDN when needed
+        if (id.includes("mermaid") || id.includes("cytoscape") || id.includes("wardley")) {
+          return true;
+        }
+        // Externalize language support libraries
+        if (id.includes("wolfram") || id.includes("wasm") || id.includes("cpp") || 
+            id.includes("emacs") || id.includes("objective-c")) {
+          return true;
+        }
+        return false;
+      },
       output: {
-        // Manual chunking strategy for better code splitting
+        // Aggressive code splitting strategy for remaining libraries
         manualChunks: (id: string) => {
-          // Separate large diagram libraries that are rarely used
-          if (id.includes("mermaid") || id.includes("cytoscape") || id.includes("wardley")) {
-            return "diagram-vendor";
+          // Separate code highlighting libraries
+          if (id.includes("highlight.js") || id.includes("code-block") || id.includes("prism")) {
+            return "highlight-vendor";
           }
           
-          // Split pages into their own chunks
+          // Separate UI component libraries
+          if (id.includes("@radix-ui") || id.includes("lucide-react") || id.includes("framer-motion")) {
+            return "ui-vendor";
+          }
+          
+          // Separate chart libraries
+          if (id.includes("recharts") || id.includes("chart")) {
+            return "chart-vendor";
+          }
+          
+          // Separate form libraries
+          if (id.includes("react-hook-form") || id.includes("zod")) {
+            return "form-vendor";
+          }
+          
+          // Separate date/time libraries
+          if (id.includes("date-fns") || id.includes("react-day-picker")) {
+            return "date-vendor";
+          }
+          
+          // Separate utility libraries
+          if (id.includes("clsx") || id.includes("class-variance-authority") || 
+              id.includes("tailwind-merge") || id.includes("cmdk")) {
+            return "utils-vendor";
+          }
+          
+          // Separate HTTP libraries
+          if (id.includes("axios") || id.includes("@tanstack/react-query") || id.includes("@trpc")) {
+            return "http-vendor";
+          }
+          
+          // Separate remaining vendor libraries into smaller chunks
+          if (id.includes("node_modules")) {
+            // React ecosystem
+            if (id.includes("react") || id.includes("scheduler")) {
+              return "react-vendor";
+            }
+            // State management and HTTP
+            if (id.includes("@tanstack") || id.includes("@trpc") || id.includes("axios") || id.includes("superjson")) {
+              return "state-vendor";
+            }
+            // UI libraries
+            if (id.includes("lucide") || id.includes("framer-motion") || id.includes("next-themes") || id.includes("sonner")) {
+              return "ui-extra-vendor";
+            }
+            // Form and validation
+            if (id.includes("react-hook-form") || id.includes("zod") || id.includes("@hookform")) {
+              return "form-vendor";
+            }
+            // Date and time
+            if (id.includes("date-fns") || id.includes("react-day-picker")) {
+              return "date-vendor";
+            }
+            // Everything else
+            return "vendor";
+          }
+          
+          // Page-specific splitting
           if (id.includes("/pages/")) {
             const pageName = id.split("/pages/")[1]?.split(".")[0] || "page";
             return `page-${pageName}`;

@@ -166,6 +166,27 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Manual chunking strategy for better code splitting
+        manualChunks: (id: string) => {
+          // Separate large diagram libraries that are rarely used
+          if (id.includes("mermaid") || id.includes("cytoscape") || id.includes("wardley")) {
+            return "diagram-vendor";
+          }
+          
+          // Split pages into their own chunks
+          if (id.includes("/pages/")) {
+            const pageName = id.split("/pages/")[1]?.split(".")[0] || "page";
+            return `page-${pageName}`;
+          }
+        },
+        // Optimize chunk naming for better caching
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+      },
+    },
   },
   server: {
     host: true,

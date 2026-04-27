@@ -6,20 +6,23 @@ Guia completo para colocar a aplicação QualiControl em produção.
 
 ## 📋 Pré-requisitos
 
-- [ ] Aplicação testada localmente
+- [ ] Aplicação testada localmente (`npm run dev` rodando sem erros)
+- [ ] Build verifi­cado localmente (`npm run build`)
 - [ ] Domínio registrado (ex: `qualicontrol.seu-dominio.com`)
 - [ ] Certificado SSL/TLS
 - [ ] Banco MySQL 8+ em servidor remoto
-- [ ] Credenciais Manu.ia atualizadas para produção
+- [ ] Credenciais Manu.ia atualizadas para produção (App ID, OAuth URL)
+- [ ] AWS S3 bucket configurado para uploads (fotos/evidências)
+- [ ] Node.js 18+ no servidor
 
 ---
 
 ## 🏢 Opções de Hosting
 
-### Opção 1: Heroku (Mais simples)
-### Opção 2: AWS (Mais escalável)
-### Opção 3: DigitalOcean (Bom custo-benefício)
-### Opção 4: Próprio servidor (máximo controle)
+### Opção 1: Heroku (Mais simples - recomendado para MVP)
+### Opção 2: AWS EC2 + RDS (Escalável, gerenciado)
+### Opção 3: DigitalOcean App Platform (Bom custo-benefício)
+### Opção 4: Seu próprio servidor VPS (máximo controle)
 
 ---
 
@@ -29,55 +32,668 @@ Guia completo para colocar a aplicação QualiControl em produção.
 
 ```bash
 # Em sua máquina local
+pnpm install
 pnpm build
 
-# Verificar artefatos
+# Verificar artefatos gerados
 ls -la dist/
-# Deve ter: dist/index.js (server) + dist/client/ (static)
+# Esperado:
+# - dist/index.js (server compilado)
+# - dist/public/ (frontend compilado - arquivos estáticos)
 ```
 
 ### 2. Variáveis de Ambiente para Produção
 
+**Arquivo `.env` (exemplo para produção):**
+
 ```bash
-# .env.production (NUNCA commite!)
+# ==========================================
+# SERVER
+# ==========================================
 NODE_ENV=production
 PORT=3000
 
-# Database (remoto)
+# ==========================================
+# DATABASE (MYSQL)
+# ==========================================
+# Usar conexão remota ao RDS/Cloud SQL
 DATABASE_URL="mysql://user:password@db.seu-servidor.com:3306/qualicontrol"
 
-# Segurança
-JWT_SECRET="seu-secret-muito-seguro-ALTERADO"
+# ==========================================
+# SECURITY
+# ==========================================
+# Gerar com: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+JWT_SECRET="gerar-um-novo-super-secreto-com-32-caracteres-minimo"
 
-# Manu.ia (credenciais de produção)
-VITE_APP_ID="prod-app-id"
+# ==========================================
+# MANU.IA OAUTH (Credenciais PRODUÇÃO)
+# ==========================================
+# Obtenha em: https://console.manus.space (conta de produção)
+VITE_APP_ID="prod-app-id-aqui"
+VITE_OAUTH_PORTAL_URL="https://id.manus.space"
 OAUTH_SERVER_URL="https://id.manus.space"
-OWNER_OPEN_ID="seu-owner-id"
+OWNER_OPEN_ID="prod-owner-id-aqui"
 
-# Forge API
+# ==========================================
+# FORGE API (Manu.ia IA - para relatórios)
+# ==========================================
 BUILT_IN_FORGE_API_URL="https://api.forge.manus.space"
-BUILT_IN_FORGE_API_KEY="chave-prod"
+BUILT_IN_FORGE_API_KEY="prod-api-key-aqui"
 
-# AWS S3 (se usar storage)
-AWS_ACCESS_KEY_ID="seu-access-key"
-AWS_SECRET_ACCESS_KEY="seu-secret"
-AWS_S3_BUCKET="qualicontrol-uploads"
+# ==========================================
+# AWS S3 (Upload de fotos/evidências)
+# ==========================================
+AWS_ACCESS_KEY_ID="sua-access-key-prod"
+AWS_SECRET_ACCESS_KEY="sua-secret-key-prod"
+AWS_S3_BUCKET="qualicontrol-prod-uploads"
 AWS_REGION="us-east-1"
+
+# ==========================================
+# ANALYTICS (Opcional - Umami)
+# ==========================================
+# VITE_ANALYTICS_ENDPOINT="https://analytics.seu-dominio.com"
+# VITE_ANALYTICS_WEBSITE_ID="seu-website-id"
 ```
+
+⚠️ **IMPORTANTE:**
+- Nunca commite `.env` com valores reais no Git
+- Use variáveis de ambiente do servidor (secrets management)
+- Regenere `JWT_SECRET` para produção
 
 ### 3. Atualizar URLs OAuth no Manu.ia
 
-1. Vá para: https://console.manus.space
+1. Acesse: https://console.manus.space
 2. Sua aplicação → Configurações
-3. URLs permitidas:
-   - Callback: `https://qualicontrol.seu-dominio.com/api/oauth/callback`
-   - CORS Origin: `https://qualicontrol.seu-dominio.com`
+3. URLs permitidas (adicione):
+   - **Callback:** `https://qualicontrol.seu-dominio.com/api/oauth/callback`
+   - **CORS Origin:** `https://qualicontrol.seu-dominio.com`
 
 ---
 
-## 🟪 Opção 1: Heroku
+## 🟪 Opção 1: Heroku (Recomendado para MVP)
 
 ### 1.1 Preparação
+
+```bash
+# Instalar Heroku CLI
+# https://devcenter.heroku.com/articles/heroku-cli
+
+# Login
+heroku login
+
+# Criar app
+heroku create qualicontrol-prod
+
+# Adicionar buildpack Node.js
+heroku buildpacks:add heroku/nodejs
+```
+
+### 1.2 Configurar banco MySQL
+
+**Opção A: JawsDB (MySQL hospedado no Heroku)**
+```bash
+# Adicionar add-on
+heroku addons:create jawsdb:kitefin
+
+# Verá: DATABASE_URL automaticamente
+heroku config | grep DATABASE_URL
+```
+
+**Opção B: Banco MySQL externo (AWS RDS, etc)**
+```bash
+# Configurar manualmente
+heroku config:set DATABASE_URL="mysql://user:pass@host:3306/db"
+```
+
+### 1.3 Configurar variáveis de ambiente
+
+```bash
+heroku config:set NODE_ENV=production
+heroku config:set JWT_SECRET="seu-secret-seguro"
+heroku config:set VITE_APP_ID="prod-app-id"
+heroku config:set VITE_OAUTH_PORTAL_URL="https://id.manus.space"
+heroku config:set OAUTH_SERVER_URL="https://id.manus.space"
+heroku config:set OWNER_OPEN_ID="prod-owner-id"
+heroku config:set BUILT_IN_FORGE_API_URL="https://api.forge.manus.space"
+heroku config:set BUILT_IN_FORGE_API_KEY="prod-api-key"
+heroku config:set AWS_ACCESS_KEY_ID="seu-access-key"
+heroku config:set AWS_SECRET_ACCESS_KEY="seu-secret-key"
+heroku config:set AWS_S3_BUCKET="qualicontrol-prod"
+heroku config:set AWS_REGION="us-east-1"
+```
+
+### 1.4 Deploy
+
+```bash
+# Push para Heroku
+git push heroku main
+
+# Ver logs
+heroku logs --tail
+
+# Aplicar migrações
+heroku run "pnpm db:push"
+
+# Abrir aplicação
+heroku open
+```
+
+---
+
+## 🟠 Opção 2: AWS EC2 + RDS (Recomendado para produção)
+
+### 2.1 Setup AWS
+
+**RDS MySQL:**
+```bash
+# Via AWS Console:
+# 1. RDS → Databases → Create database
+# 2. Engine: MySQL 8.0
+# 3. Instance: db.t3.micro (free tier) ou t3.small
+# 4. Storage: 100GB
+# 5. Multi-AZ: No (sim para produção crítica)
+# 6. Database name: qualicontrol
+# 7. Master user: dbadmin
+# 8. Backup retention: 7 days
+# 9. Enhanced monitoring: disabled (para costs)
+
+# Ao final, copie:
+# Endpoint: qualicontrol.xxxxx.us-east-1.rds.amazonaws.com
+# Port: 3306
+```
+
+**EC2:**
+```bash
+# 1. Launch instance (Ubuntu 22.04 LTS)
+# 2. Instance type: t3.small
+# 3. Storage: 50GB gp3
+# 4. Security group: Allow SSH (22), HTTP (80), HTTPS (443)
+# 5. KeyPair: Salve seguro (.pem)
+
+# SSH na instância
+ssh -i seu-key.pem ubuntu@seu-instance-ip
+
+# Update sistema
+sudo apt update && sudo apt upgrade -y
+
+# Instalar Node.js 18+
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Instalar pnpm
+npm install -g pnpm
+
+# Instalar PM2 (process manager)
+npm install -g pm2
+```
+
+### 2.2 Deploy manualmente
+
+```bash
+# Na instância EC2:
+
+# Clone do repositório
+git clone https://seu-repo.git qualicontrol
+cd qualicontrol
+
+# Setup
+pnpm install
+pnpm build
+
+# Criar .env com variáveis de produção
+nano .env
+
+# Aplicar migrações
+NODE_ENV=production DATABASE_URL="..." pnpm db:push
+
+# Iniciar com PM2
+pm2 start dist/index.js --name "qualicontrol"
+pm2 save
+pm2 startup
+
+# Ver status
+pm2 status
+pm2 logs qualicontrol
+
+# NGINX (proxy reverso)
+sudo apt install -y nginx
+
+# Config NGINX
+sudo nano /etc/nginx/sites-available/qualicontrol
+```
+
+**NGINX Config:**
+```nginx
+server {
+    listen 80;
+    server_name qualicontrol.seu-dominio.com;
+
+    # Redirecionar HTTP → HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name qualicontrol.seu-dominio.com;
+
+    ssl_certificate /etc/letsencrypt/live/qualicontrol.seu-dominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/qualicontrol.seu-dominio.com/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
+# Ativar site
+sudo ln -s /etc/nginx/sites-available/qualicontrol /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+
+# Certificado SSL (Let's Encrypt)
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot certonly --nginx -d qualicontrol.seu-dominio.com
+```
+
+---
+
+## � Opção 3: VPS Genérica (DigitalOcean, Linode, Vultr, etc)
+
+### 3.1 Setup Servidor
+
+```bash
+# SSH na VPS
+ssh root@seu-vps-ip
+
+# Update sistema
+apt update && apt upgrade -y
+
+# Instalar Node.js, pnpm, Git
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+apt install -y nodejs git
+
+# Instalar pnpm
+npm install -g pnpm
+
+# Instalar PM2 (process manager)
+npm install -g pm2
+
+# Instalar Nginx
+apt install -y nginx
+
+# Instalar Certbot (SSL)
+apt install -y certbot python3-certbot-nginx
+```
+
+### 3.2 Clonar e Deploy
+
+```bash
+# Criar diretório
+mkdir -p /var/www/qualicontrol
+cd /var/www/qualicontrol
+
+# Clonar repositório
+git clone https://seu-repo.git .
+cd qualicontrol
+
+# Instalar dependências
+pnpm install --frozen-lockfile
+
+# Build
+pnpm build
+
+# Criar arquivo .env
+cat > .env << EOF
+NODE_ENV=production
+PORT=3000
+DATABASE_URL="mysql://user:password@db-host:3306/qualicontrol"
+JWT_SECRET="seu-secret-gerado"
+VITE_APP_ID="prod-app-id"
+VITE_OAUTH_PORTAL_URL="https://id.manus.space"
+OAUTH_SERVER_URL="https://id.manus.space"
+OWNER_OPEN_ID="seu-owner-id"
+BUILT_IN_FORGE_API_URL="https://api.forge.manus.space"
+BUILT_IN_FORGE_API_KEY="sua-api-key"
+AWS_ACCESS_KEY_ID="sua-key"
+AWS_SECRET_ACCESS_KEY="sua-secret"
+AWS_S3_BUCKET="qualicontrol-uploads"
+AWS_REGION="us-east-1"
+EOF
+
+# Aplicar migrações
+pnpm db:push
+
+# Iniciar com PM2
+pm2 start dist/index.js --name "qualicontrol" --instances max
+pm2 save
+pm2 startup
+```
+
+### 3.3 Configurar Nginx
+
+```bash
+# Criar config
+cat > /etc/nginx/sites-available/qualicontrol << 'EOF'
+server {
+    listen 80;
+    server_name qualicontrol.seu-dominio.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name qualicontrol.seu-dominio.com;
+
+    ssl_certificate /etc/letsencrypt/live/qualicontrol.seu-dominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/qualicontrol.seu-dominio.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # Assets estáticos (servir diretamente)
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        root /var/www/qualicontrol/dist/public;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Proxy para Node.js
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+EOF
+
+# Ativar site
+ln -s /etc/nginx/sites-available/qualicontrol /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+
+# Testar Nginx
+nginx -t
+
+# Aplicar SSL
+certbot certonly --nginx -d qualicontrol.seu-dominio.com
+
+# Restart Nginx
+systemctl restart nginx
+```
+
+### 3.4 Auto-atualização (via Git)
+
+```bash
+# Criar script de deploy
+cat > /var/www/qualicontrol/deploy.sh << 'EOF'
+#!/bin/bash
+cd /var/www/qualicontrol
+git pull origin main
+pnpm install --frozen-lockfile
+pnpm build
+pm2 restart qualicontrol
+EOF
+
+chmod +x /var/www/qualicontrol/deploy.sh
+
+# Adicionar webhook do GitHub (opcional)
+# Ou fazer deploy manual: ./deploy.sh
+```
+
+---
+
+## 🟦 Opção 4: Hostinger (Hospedagem Compartilhada Node.js)
+
+Hostinger oferece suporte nativo a Node.js com deploy via GitHub.
+
+### 4.1 Setup no Painel Hostinger
+
+1. **Acessar painel:** https://hpanel.hostinger.com
+2. **Ir para:** Aplicações Web → Node.js
+3. **Criar nova aplicação Node.js:**
+   - Nome: `qualicontrol`
+   - Versão Node.js: `18` ou superior
+   - Porta: `3000` (padrão)
+   - Domínio: `qualicontrol.seu-dominio.com`
+
+### 4.2 Conectar com GitHub
+
+```bash
+# No repositório GitHub:
+
+1. Ir para Settings → Deployments
+2. Conectar com Hostinger (via GitHub Apps)
+3. Selecionar branch: `main` ou `production`
+4. Enable auto-deploy
+```
+
+### 4.3 Configurar Environment Variables
+
+**No painel Hostinger:**
+1. Ir para: Node.js App → Environment Variables
+2. Adicionar cada variável:
+
+```
+NODE_ENV=production
+PORT=3000
+DATABASE_URL=mysql://user:password@db.hostinger.com:3306/qualicontrol
+JWT_SECRET=seu-secret-gerado
+VITE_APP_ID=prod-app-id
+VITE_OAUTH_PORTAL_URL=https://id.manus.space
+OAUTH_SERVER_URL=https://id.manus.space
+OWNER_OPEN_ID=seu-owner-id
+BUILT_IN_FORGE_API_URL=https://api.forge.manus.space
+BUILT_IN_FORGE_API_KEY=sua-api-key
+AWS_ACCESS_KEY_ID=sua-key
+AWS_SECRET_ACCESS_KEY=sua-secret
+AWS_S3_BUCKET=qualicontrol-uploads
+AWS_REGION=us-east-1
+```
+
+### 4.4 Setup do Banco de Dados
+
+**MySQL no Hostinger:**
+1. Ir para: Databases → MySQL
+2. Criar database: `qualicontrol`
+3. Criar user: `dbadmin`
+4. Copiar connection string: `mysql://dbadmin:password@localhost:3306/qualicontrol`
+
+**Ou usar banco externo (AWS RDS):**
+- Adicionar DATABASE_URL remota nas env vars
+
+### 4.5 Deploy Automático
+
+**Opção A: Auto-deploy via GitHub (Recomendado)**
+```bash
+# Ao fazer push para main:
+git add .
+git commit -m "Deploy para produção"
+git push origin main
+
+# Hostinger automaticamente:
+# 1. Faz clone do repo
+# 2. Instala pnpm install
+# 3. Executa pnpm build
+# 4. Reinicia app (pm2)
+```
+
+**Opção B: Deploy Manual**
+```bash
+# Via SSH (se disponível):
+ssh seu-usuario@seu-hostinger.com
+cd apps/qualicontrol
+git pull origin main
+pnpm install
+pnpm build
+pm2 restart qualicontrol
+```
+
+### 4.6 Aplicar Migrações do Banco
+
+**Via Hostinger Terminal:**
+```bash
+# No painel Hostinger: Terminal → SSH
+cd /home/seu-usuario/public_html/apps/qualicontrol
+
+# Aplicar migrações
+DATABASE_URL="mysql://dbadmin:password@localhost:3306/qualicontrol" pnpm db:push
+```
+
+### 4.7 Verificar Deploy
+
+```bash
+# Acessar sua aplicação
+https://qualicontrol.seu-dominio.com
+
+# Ver logs (via painel Hostinger)
+# Ir para: Node.js App → Logs
+
+# Health check
+curl https://qualicontrol.seu-dominio.com/api/health
+# Esperado: {"status":"ok",...}
+```
+
+### 4.8 Troubleshooting Hostinger
+
+| Problema | Solução |
+|----------|---------|
+| App não inicia | Verificar Node version (use 18+) |
+| Build fail | Verificar pnpm-lock.yaml commitado |
+| DB connection error | Testar DATABASE_URL no env vars |
+| Static assets 404 | Usar `dist/public/` como public dir |
+| Deploy não acontece | Verificar GitHub webhook no Hostinger |
+
+---
+
+## �📊 Health Check & Monitoring
+
+Adicionar endpoint de health check:
+
+```bash
+# Seu servidor deve responder em:
+curl https://qualicontrol.seu-dominio.com/api/health
+
+# Resposta esperada:
+# {"status":"ok","timestamp":"2026-04-24T..."}
+```
+
+---
+
+## 🔄 CI/CD (GitHub Actions - Opcional)
+
+Arquivo: `.github/workflows/deploy.yml`
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - run: pnpm install
+      - run: pnpm build
+      - run: pnpm test
+
+      # Deploy para Heroku
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: qualicontrol-prod
+          heroku_email: seu-email@example.com
+```
+
+---
+
+## 🗄️ Backup & Recovery
+
+### MySQL Backup
+
+```bash
+# Backup manual
+mysqldump -h db.seu-servidor.com -u dbadmin -p qualicontrol > backup-$(date +%Y%m%d).sql
+
+# Restaurar
+mysql -h db.seu-servidor.com -u dbadmin -p qualicontrol < backup-20260424.sql
+
+# S3 backup automático
+*/6 * * * * /usr/local/bin/backup-db.sh >> /var/log/db-backup.log 2>&1
+```
+
+**Script `backup-db.sh`:**
+```bash
+#!/bin/bash
+BACKUP_FILE="/tmp/qualicontrol-$(date +%Y%m%d-%H%M%S).sql"
+mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME > $BACKUP_FILE
+aws s3 cp $BACKUP_FILE s3://qualicontrol-backups/
+rm $BACKUP_FILE
+```
+
+---
+
+## 📈 Performance & Scaling
+
+### Otimizações recomendadas:
+
+1. **CDN para assets estáticos**
+   - CloudFront (AWS)
+   - Cloudflare
+
+2. **Cache**
+   - Redis para sessions
+   - Varnish para HTTP cache
+
+3. **Database optimization**
+   - Indexar campos utilizados em WHERE/JOIN
+   - Connection pooling (MySQL)
+
+4. **Auto-scaling** (se usar AWS)
+   - ALB (Application Load Balancer)
+   - Auto Scaling Group
+   - Min 2, Max 10 instâncias
+
+---
+
+## 🐛 Troubleshooting
+
+| Erro | Causa | Solução |
+|------|-------|---------|
+| `Cannot connect to database` | DB não acessível | Verificar security groups, credenciais |
+| `Invalid OAuth credentials` | App ID/Owner ID errados | Revisar console.manus.space |
+| `S3 upload fails` | AWS credentials inválidas | Verificar IAM permissions |
+| `500 errors` | Server crash | `pm2 logs` ou `heroku logs` |
+
+---
+
+## 📞 Suporte
+
+Dúvidas durante deploy? Verifique:
+1. `SETUP_DESENVOLVIMENTO.md` - Setup local
+2. `MANUS_CREDENTIALS.md` - OAuth setup
+3. `ARQUITETURA.md` - Stack técnico
+
 
 ```bash
 # Instalar Heroku CLI

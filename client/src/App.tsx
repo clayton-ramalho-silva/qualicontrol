@@ -6,38 +6,52 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import Home from "./pages/Home";
-import DesviosList from "./pages/DesviosList";
-import DesvioNovo from "./pages/DesvioNovo";
-import DesvioDetalhe from "./pages/DesvioDetalhe";
-import Fornecedores from "./pages/Fornecedores";
-import Obras from "./pages/Obras";
-import Assistente from "./pages/Assistente";
-import Relatorio from "./pages/Relatorio";
-import Verificacoes from "./pages/Verificacoes";
-import NovaVerificacao from "./pages/NovaVerificacao";
-import VerificacaoDetalhe from "./pages/VerificacaoDetalhe";
-import Administracao from "./pages/Administracao";
-import Usuarios from "./pages/Usuarios";
+import { Suspense, lazy } from "react";
+
+// Lazy load pages for better code splitting
+const DesviosList = lazy(() => import("./pages/DesviosList"));
+const DesvioNovo = lazy(() => import("./pages/DesvioNovo"));
+const DesvioDetalhe = lazy(() => import("./pages/DesvioDetalhe"));
+const Fornecedores = lazy(() => import("./pages/Fornecedores"));
+const Obras = lazy(() => import("./pages/Obras"));
+const Assistente = lazy(() => import("./pages/Assistente"));
+const Relatorio = lazy(() => import("./pages/Relatorio"));
+const Verificacoes = lazy(() => import("./pages/Verificacoes"));
+const NovaVerificacao = lazy(() => import("./pages/NovaVerificacao"));
+const VerificacaoDetalhe = lazy(() => import("./pages/VerificacaoDetalhe"));
+const Administracao = lazy(() => import("./pages/Administracao"));
+const Usuarios = lazy(() => import("./pages/Usuarios"));
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
+    </div>
+  );
+}
 
 function Router() {
   return (
     <DashboardLayout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/desvios" component={DesviosList} />
-        <Route path="/desvios/novo" component={DesvioNovo} />
-        <Route path="/desvios/:id" component={DesvioDetalhe} />
-        <Route path="/fornecedores" component={Fornecedores} />
-        <Route path="/obras" component={Obras} />
-        <Route path="/assistente" component={Assistente} />
-        <Route path="/relatorio" component={Relatorio} />
-        <Route path="/verificacoes" component={Verificacoes} />
-        <Route path="/verificacoes/nova" component={NovaVerificacao} />
-        <Route path="/verificacoes/:id" component={VerificacaoDetalhe} />
-        <Route path="/usuarios" component={Usuarios} />
-        <Route path="/administracao" component={Administracao} />
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<LoadingFallback />}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/desvios" component={DesviosList} />
+          <Route path="/desvios/novo" component={DesvioNovo} />
+          <Route path="/desvios/:id" component={DesvioDetalhe} />
+          <Route path="/fornecedores" component={Fornecedores} />
+          <Route path="/obras" component={Obras} />
+          <Route path="/assistente" component={Assistente} />
+          <Route path="/relatorio" component={Relatorio} />
+          <Route path="/verificacoes" component={Verificacoes} />
+          <Route path="/verificacoes/nova" component={NovaVerificacao} />
+          <Route path="/verificacoes/:id" component={VerificacaoDetalhe} />
+          <Route path="/usuarios" component={Usuarios} />
+          <Route path="/administracao" component={Administracao} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </DashboardLayout>
   );
 }
